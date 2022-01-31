@@ -101,7 +101,7 @@ module.exports = class UserController {
         // check if password match with db password
         const checkPassword = await bcrypt.compare(password, user.password)
 
-        if(!checkPassword) {
+        if (!checkPassword) {
             res.status(422).json({
                 message: "Senha inválida!",
             })
@@ -114,7 +114,7 @@ module.exports = class UserController {
 
         let currentUser
 
-        if(req.headers.authorization) {
+        if (req.headers.authorization) {
             const token = getToken(req)
             const decoded = jwt.verify(token, 'secret')
 
@@ -125,5 +125,20 @@ module.exports = class UserController {
             currentUser = null
         }
         res.status(200).send(currentUser)
+    }
+
+    static async getUserById(req, res) {
+        const id = req.params.id
+
+        const user = await User.findById(id).select("-password")
+
+        if (!user) {
+            req.status(422).json({
+                message: 'Usuário não encontrado!'
+            })
+            return
+        }
+
+        res.status(200).json({ user })
     }
 }
